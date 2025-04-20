@@ -5,6 +5,7 @@ import study.db.jdbc.connection.DBConnectionUtil;
 import study.db.jdbc.domain.Member;
 
 import java.sql.*;
+import java.util.NoSuchElementException;
 
 /**
  * JDBC의 DriverManager를 사용한다.
@@ -32,6 +33,35 @@ public class MemberRepositoryV0 {
             throw e;
         } finally {
             close(connection, preparedStatement, null); // 예외 발생 여부와 관계 없이 항상 리소스를 정리해야 한다.
+        }
+    }
+
+    public Member findById(String memberId) throws SQLException {
+        String sql = "select * from member where member_id = ?";
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            connection = getConnection();
+            preparedStatement = connection.prepareStatement(sql);
+
+            preparedStatement.setString(1, memberId);
+            resultSet = preparedStatement.executeQuery(); // 데이터를 조회한 결과를 ResultSet에 저장해 반환한다.
+
+            if (resultSet.next()) {
+                String fetchMemberId = resultSet.getString("member_id");
+                int fetchMoney = resultSet.getInt("money");
+                return new Member(fetchMemberId, fetchMoney);
+            } else {
+                throw new NoSuchElementException("member not found: id=" + memberId);
+            }
+        } catch (SQLException e) {
+            log.error("database error", e);
+            throw e;
+        } finally {
+            close(connection, preparedStatement, resultSet);
         }
     }
 
