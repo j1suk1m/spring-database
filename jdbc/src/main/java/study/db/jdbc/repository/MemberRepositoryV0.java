@@ -65,6 +65,47 @@ public class MemberRepositoryV0 {
         }
     }
 
+    public void update(String memberId, int money) throws SQLException {
+        String sql = "update member set money = ? where member_id = ?";
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            connection = getConnection();
+            preparedStatement = connection.prepareStatement(sql); // 데이터베이스에 전달할 SQL과 파라미터로 전달할 데이터들을 준비한다.
+
+            preparedStatement.setInt(1, money);
+            preparedStatement.setString(2, memberId);
+            preparedStatement.executeUpdate(); // 커넥션을 통해 SQL을 실제 데이터베이스에 전달한다.
+        } catch (SQLException e) {
+            log.error("database error", e);
+            throw e;
+        } finally {
+            close(connection, preparedStatement, null); // 예외 발생 여부와 관계 없이 항상 리소스를 정리해야 한다.
+        }
+    }
+
+    public void delete(String memberId) throws SQLException {
+        String sql = "delete from member where member_id = ?";
+
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            connection = getConnection();
+            preparedStatement = connection.prepareStatement(sql); // 데이터베이스에 전달할 SQL과 파라미터로 전달할 데이터들을 준비한다.
+
+            preparedStatement.setString(1, memberId);
+            preparedStatement.executeUpdate(); // 커넥션을 통해 SQL을 실제 데이터베이스에 전달한다.
+        } catch (SQLException e) {
+            log.error("database error", e);
+            throw e;
+        } finally {
+            close(connection, preparedStatement, null); // 예외 발생 여부와 관계 없이 항상 리소스를 정리해야 한다.
+        }
+    }
+
     /**
      * 역순으로 리소스를 정리한다.
      */
